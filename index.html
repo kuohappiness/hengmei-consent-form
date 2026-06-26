@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>恆美治療費用同意書系統</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar no-print">
+      <div class="action-bar">
+        <button id="finishBtn" class="primary">完成</button>
+        <button id="printBtn" class="primary">輸出成PDF</button>
+      </div>
+      <h1>恆美治療費用同意書系統</h1>
+      <div id="status" class="status" role="status"></div>
+    </header>
+
+    <main class="workspace">
+      <section class="panel no-print patient-panel">
+        <div class="section-title">
+          <h2>貼上病患首頁</h2>
+          <button id="clearPatientBtn" class="ghost">清除</button>
+        </div>
+        <div id="pasteArea" class="paste-area" tabindex="0">
+          <img id="patientImage" alt="病患首頁截圖">
+          <div id="pasteHint" class="paste-hint">
+            點一下此區後貼上診所內網病患頁面截圖，也可直接輸入補充文字。
+          </div>
+          <textarea id="patientText" placeholder="病患基本資料補充文字"></textarea>
+        </div>
+      </section>
+
+      <section class="panel no-print chart-panel">
+        <div class="section-title">
+          <h2>點選牙位</h2>
+          <span class="small-note">點牙齒後會填入目前選取的表格列</span>
+        </div>
+        <div class="tooth-chart-wrap">
+          <img src="牙位圖_修正版.jpg" alt="牙位圖" class="tooth-chart">
+          <div id="toothButtons" class="tooth-buttons" aria-label="牙位選擇"></div>
+        </div>
+      </section>
+
+      <section class="panel no-print treatment-panel">
+        <div class="section-title">
+          <h2>治療項目</h2>
+          <span id="activeRowLabel" class="small-note">目前列：第 1 列</span>
+        </div>
+        <div id="categoryGrid" class="category-grid"></div>
+        <div class="picker-row">
+          <label for="treatmentSelect">治療項目</label>
+          <select id="treatmentSelect">
+            <option value="">請先選擇類別</option>
+          </select>
+          <button id="applyTreatmentBtn">帶入表格</button>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="section-title no-print">
+          <h2>總表</h2>
+          <div class="table-tools">
+            <button id="addRowBtn" class="ghost">新增列</button>
+            <button id="removeEmptyBtn" class="ghost">刪除空白列</button>
+          </div>
+        </div>
+
+        <article id="printSheet" class="print-sheet">
+          <h1 class="print-title">治療費用同意書</h1>
+
+          <section class="print-section patient-print">
+            <h2>病患基本資料：</h2>
+            <div id="printPatientBox" class="patient-print-box">
+              <img id="printPatientImage" alt="病患基本資料截圖">
+              <div id="printPatientText"></div>
+            </div>
+          </section>
+
+          <section class="print-section">
+            <h2>病患治療項目 (顆為計價單位) ：</h2>
+            <table id="consentTable" class="consent-table">
+              <colgroup>
+                <col>
+                <col>
+                <col>
+                <col>
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>牙位</th>
+                  <th>類別</th>
+                  <th>治療項目</th>
+                  <th>金額</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+              <tfoot>
+                <tr>
+                  <th>合計</th>
+                  <td></td>
+                  <td></td>
+                  <td id="totalCell"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </section>
+
+          <section class="signature-block">
+            <p>病患簽名：__________________________________</p>
+            <p>日期：______________________________________</p>
+          </section>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
