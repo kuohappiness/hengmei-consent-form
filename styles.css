@@ -368,23 +368,23 @@ button.ghost {
 }
 
 .consent-table col:nth-child(1) {
-  width: 10%;
+  width: 9%;
 }
 
 .consent-table col:nth-child(2) {
-  width: 25%;
+  width: 24%;
 }
 
 .consent-table col:nth-child(3) {
-  width: 16%;
+  width: 15%;
 }
 
 .consent-table col:nth-child(4) {
-  width: 33%;
+  width: 28%;
 }
 
 .consent-table col:nth-child(5) {
-  width: 16%;
+  width: 24%;
 }
 
 .consent-table tr.group-row td:first-child {
@@ -414,6 +414,12 @@ button.ghost {
 }
 
 .consent-table td.amount-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+#totalCell {
+  white-space: nowrap;
   text-align: center;
 }
 
