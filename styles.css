@@ -256,6 +256,7 @@ button.ghost {
 }
 
 .print-sheet {
+  position: relative;
   max-width: 840px;
   min-height: 1120px;
   margin: 0 auto;
@@ -264,6 +265,25 @@ button.ghost {
   padding: 46px 54px;
   border: 1px solid #d9d9d9;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.page-markers {
+  position: absolute;
+  top: 0;
+  right: 12px;
+  width: 18px;
+  pointer-events: none;
+}
+
+.page-marker {
+  position: absolute;
+  right: 0;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  color: #555;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0;
 }
 
 .print-title {
@@ -468,12 +488,22 @@ button.ghost {
   }
 
   .print-sheet {
+    position: relative;
     width: auto;
     min-height: 0;
     max-width: none;
     padding: 0;
     border: 0;
     box-shadow: none;
+  }
+
+  .page-markers {
+    right: -6mm;
+  }
+
+  .page-marker {
+    color: #444;
+    font-size: 8pt;
   }
 
   .print-title {

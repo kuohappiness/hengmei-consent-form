@@ -80,7 +80,9 @@ const els = {
   categoryGrid: document.getElementById("categoryGrid"),
   treatmentSelect: document.getElementById("treatmentSelect"),
   activeRowLabel: document.getElementById("activeRowLabel"),
-  toothButtons: document.getElementById("toothButtons")
+  toothButtons: document.getElementById("toothButtons"),
+  printSheet: document.getElementById("printSheet"),
+  pageMarkers: document.getElementById("pageMarkers")
 };
 
 function init() {
@@ -103,6 +105,8 @@ function bindEvents() {
   els.patientText.addEventListener("input", syncPatientPrint);
   els.pasteArea.addEventListener("paste", handlePaste);
   els.pasteArea.addEventListener("click", () => els.pasteArea.focus());
+  window.addEventListener("resize", updatePageMarkers);
+  window.addEventListener("beforeprint", updatePageMarkers);
 }
 
 function buildCategoryButtons() {
@@ -195,6 +199,7 @@ function renderTable() {
   updateActiveLabel();
   updateToothHighlights();
   updateTotal();
+  updatePageMarkers();
 }
 
 function setActiveRow(index) {
@@ -379,11 +384,34 @@ function finishForm() {
 
 function printPdf() {
   if (!finishForm()) return;
+  updatePageMarkers();
   window.print();
 }
 
 function setStatus(message) {
   els.status.textContent = message;
+}
+
+function updatePageMarkers() {
+  if (!els.printSheet || !els.pageMarkers) return;
+  const pageHeight = Math.max(920, Math.round(els.printSheet.clientWidth * 1.414));
+  const contentHeight = Math.max(els.printSheet.scrollHeight, pageHeight);
+  const pageCount = Math.max(1, Math.ceil(contentHeight / pageHeight));
+  els.pageMarkers.innerHTML = "";
+  els.pageMarkers.style.height = `${pageCount * pageHeight}px`;
+  for (let page = 1; page <= pageCount; page += 1) {
+    const marker = document.createElement("span");
+    marker.className = "page-marker";
+    marker.textContent = `${toChineseNumber(page)}頁`;
+    marker.style.top = `${(page - 1) * pageHeight + pageHeight / 2 - 28}px`;
+    els.pageMarkers.appendChild(marker);
+  }
+}
+
+function toChineseNumber(value) {
+  const labels = ["", "第一", "第二", "第三", "第四", "第五", "第六", "第七", "第八", "第九", "第十"];
+  if (value < labels.length) return labels[value];
+  return `第${value}`;
 }
 
 init();
