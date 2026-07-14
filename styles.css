@@ -273,6 +273,19 @@ button.ghost {
   font-weight: 700;
 }
 
+.title-note {
+  width: 8.5em;
+  margin-left: 10px;
+  border: 0;
+  border-bottom: 2px solid #000;
+  background: transparent;
+  color: #000;
+  font-size: 18px;
+  font-weight: 400;
+  text-align: center;
+  outline: none;
+}
+
 .print-section {
   margin-bottom: 24px;
 }
@@ -335,23 +348,53 @@ button.ghost {
 }
 
 .consent-table col:nth-child(1) {
-  width: 25%;
+  width: 10%;
 }
 
 .consent-table col:nth-child(2) {
-  width: 18%;
+  width: 25%;
 }
 
 .consent-table col:nth-child(3) {
-  width: 37%;
+  width: 16%;
 }
 
 .consent-table col:nth-child(4) {
-  width: 20%;
+  width: 33%;
 }
 
-.row-controls {
-  display: none;
+.consent-table col:nth-child(5) {
+  width: 16%;
+}
+
+.consent-table tr.group-row td:first-child {
+  border-left-width: 3px;
+}
+
+.consent-table tr.group-row td:last-child {
+  border-right-width: 3px;
+}
+
+.consent-table tr.group-start td {
+  border-top-width: 3px;
+}
+
+.consent-table tr.group-end td {
+  border-bottom-width: 3px;
+}
+
+.consent-table tr.single-row-group td {
+  border-top-width: 3px;
+  border-bottom-width: 3px;
+}
+
+.consent-table td.tooth-number {
+  text-align: center;
+  font-weight: 700;
+}
+
+.consent-table td.amount-cell {
+  text-align: center;
 }
 
 .signature-block {
@@ -436,6 +479,11 @@ button.ghost {
   .print-title {
     font-size: 24px;
     margin-bottom: 24px;
+  }
+
+  .title-note {
+    font-size: 15pt;
+    width: 7.5em;
   }
 
   .patient-print-box {

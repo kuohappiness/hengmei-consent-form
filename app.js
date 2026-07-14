@@ -40,6 +40,17 @@ const toothNames = {
   LL5: "左下第二小臼齒", LL6: "左下第一大臼齒", LL7: "左下第二大臼齒", LL8: "左下第三大臼齒"
 };
 
+const toothNumbers = {
+  UR1: "11", UR2: "12", UR3: "13", UR4: "14", UR5: "15", UR6: "16", UR7: "17", UR8: "18",
+  UL1: "21", UL2: "22", UL3: "23", UL4: "24", UL5: "25", UL6: "26", UL7: "27", UL8: "28",
+  LL1: "31", LL2: "32", LL3: "33", LL4: "34", LL5: "35", LL6: "36", LL7: "37", LL8: "38",
+  LR1: "41", LR2: "42", LR3: "43", LR4: "44", LR5: "45", LR6: "46", LR7: "47", LR8: "48"
+};
+
+const toothNameToNumber = Object.fromEntries(
+  Object.entries(toothNames).map(([code, name]) => [name, toothNumbers[code]])
+);
+
 const toothLayout = [
   ["UR8", 37, 74, "upper"], ["UR7", 64, 74, "upper"], ["UR6", 90, 73, "upper"], ["UR5", 114, 76, "upper"],
   ["UR4", 132, 74, "upper"], ["UR3", 153, 71, "upper"], ["UR2", 173, 75, "upper"], ["UR1", 191, 73, "upper"],
@@ -73,7 +84,7 @@ const els = {
 };
 
 function init() {
-  rows = Array.from({ length: 4 }, () => ({ tooth: "", category: "", item: "", amount: "" }));
+  rows = Array.from({ length: 4 }, createEmptyRow);
   buildCategoryButtons();
   buildToothButtons();
   renderTable();
@@ -112,9 +123,9 @@ function selectCategory(category) {
     btn.classList.toggle("active", btn.textContent === category);
   });
   els.treatmentSelect.innerHTML = `<option value="">請選擇${category}項目</option>`;
-  treatments[category].forEach(([name, amount]) => {
+  treatments[category].forEach(([name, amount], index) => {
     const option = document.createElement("option");
-    option.value = name;
+    option.value = String(index);
     option.textContent = `${name}（${amount}）`;
     els.treatmentSelect.appendChild(option);
   });
@@ -140,18 +151,35 @@ function renderTable() {
   els.tableBody.innerHTML = "";
   rows.forEach((row, index) => {
     const tr = document.createElement("tr");
-    tr.className = index === activeIndex ? "active-row" : "";
+    const groupInfo = getGroupInfo(index);
+    tr.className = [
+      index === activeIndex ? "active-row" : "",
+      groupInfo.isGrouped ? "group-row" : "",
+      groupInfo.isStart ? "group-start" : "",
+      groupInfo.isEnd ? "group-end" : "",
+      groupInfo.isSingle ? "single-row-group" : ""
+    ].filter(Boolean).join(" ");
     tr.addEventListener("click", () => {
       if (index !== activeIndex) setActiveRow(index);
     });
-    ["tooth", "category", "item", "amount"].forEach(key => {
+    ["toothNo", "tooth", "category", "item", "amount"].forEach(key => {
       const td = document.createElement("td");
       td.contentEditable = "true";
       td.textContent = row[key];
+      if (key === "toothNo") td.className = "tooth-number";
+      if (key === "amount") td.className = "amount-cell";
       td.dataset.index = index;
       td.dataset.key = key;
       td.addEventListener("input", event => {
         rows[index][key] = event.currentTarget.textContent.trim();
+        if (key === "tooth") {
+          const matchedToothNo = toothNameToNumber[rows[index].tooth];
+          if (matchedToothNo) {
+            rows[index].toothNo = matchedToothNo;
+            const toothNoCell = event.currentTarget.parentElement.querySelector('[data-key="toothNo"]');
+            if (toothNoCell) toothNoCell.textContent = matchedToothNo;
+          }
+        }
         updateTotal();
       });
       td.addEventListener("focus", () => {
@@ -175,13 +203,13 @@ function setActiveRow(index) {
 }
 
 function addRow(makeActive = false) {
-  rows.push({ tooth: "", category: "", item: "", amount: "" });
+  rows.push(createEmptyRow());
   if (makeActive) activeIndex = rows.length - 1;
   renderTable();
 }
 
 function removeEmptyRows() {
-  rows = rows.filter(row => row.tooth || row.category || row.item || row.amount);
+  rows = rows.filter(row => row.toothNo || row.tooth || row.category || row.item || row.amount);
   if (rows.length === 0) addRow(false);
   activeIndex = Math.min(activeIndex, rows.length - 1);
   renderTable();
@@ -190,19 +218,22 @@ function removeEmptyRows() {
 
 function applyTooth(code) {
   ensureActiveRow();
+  rows[activeIndex].toothNo = toothNumbers[code];
   rows[activeIndex].tooth = toothNames[code];
   renderTable();
-  setStatus(`已帶入牙位：${toothNames[code]}`);
+  setStatus(`已帶入牙位：${toothNumbers[code]} ${toothNames[code]}`);
 }
 
 function applyTreatment() {
-  const item = els.treatmentSelect.value;
-  if (!selectedCategory || !item) return;
+  const itemIndex = Number(els.treatmentSelect.value);
+  if (!selectedCategory || Number.isNaN(itemIndex)) return;
   ensureActiveRow();
-  const found = treatments[selectedCategory].find(([name]) => name === item);
+  const found = treatments[selectedCategory][itemIndex];
+  if (!found) return;
+  const [item, amount] = found;
   rows[activeIndex].category = selectedCategory;
   rows[activeIndex].item = item;
-  rows[activeIndex].amount = found ? found[1] : "";
+  rows[activeIndex].amount = amount;
   if (rows[activeIndex].tooth && activeIndex === rows.length - 1) addRow(false);
   renderTable();
   setStatus(`已帶入：${item}`);
@@ -210,6 +241,31 @@ function applyTreatment() {
 
 function ensureActiveRow() {
   if (!rows[activeIndex]) addRow(true);
+}
+
+function createEmptyRow() {
+  return { toothNo: "", tooth: "", category: "", item: "", amount: "" };
+}
+
+function rowGroupKey(row) {
+  return String(row.toothNo || row.tooth || "").trim();
+}
+
+function getGroupInfo(index) {
+  const key = rowGroupKey(rows[index]);
+  if (!key) {
+    return { isGrouped: false, isStart: false, isEnd: false, isSingle: false };
+  }
+  const prevKey = index > 0 ? rowGroupKey(rows[index - 1]) : "";
+  const nextKey = index < rows.length - 1 ? rowGroupKey(rows[index + 1]) : "";
+  const isStart = key !== prevKey;
+  const isEnd = key !== nextKey;
+  return {
+    isGrouped: true,
+    isStart,
+    isEnd,
+    isSingle: isStart && isEnd
+  };
 }
 
 function updateActiveLabel() {
@@ -309,8 +365,8 @@ function finishForm() {
   removeEmptyRows();
   const incomplete = rows
     .map((row, index) => ({ row, index }))
-    .filter(({ row }) => row.tooth || row.category || row.item || row.amount)
-    .filter(({ row }) => !row.tooth || !row.category || !row.item || !row.amount);
+    .filter(({ row }) => row.toothNo || row.tooth || row.category || row.item || row.amount)
+    .filter(({ row }) => !row.toothNo || !row.tooth || !row.category || !row.item || !row.amount);
   if (incomplete.length) {
     activeIndex = incomplete[0].index;
     renderTable();
